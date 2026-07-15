@@ -23,7 +23,7 @@ class Status(models.TextChoices):
     DONE = 'done', 'Done'
 
 class Task(models.Model):
-    title = models.CharField(max_length=100, unique_for_date="created_at")
+    title = models.CharField(max_length=100)
     description = models.TextField()
     category = models.ManyToManyField(Book)
     status = models.CharField(max_length=15, choices=Status, default=Status.NEW)
@@ -33,8 +33,13 @@ class Task(models.Model):
     def __str__(self):
         return self.title
 
-    def __repr__(self):
-        return self.title
+    class Meta:
+        db_table = 'task_manager_task'
+        ordering = ['-created_at']
+        verbose_name = 'Task'
+        constraints = [
+            models.UniqueConstraint(fields=['title'], name='unique_task_title'),
+        ]
 
 
 class SubTask(models.Model):
@@ -46,7 +51,15 @@ class SubTask(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.title} ({self.task.title})"
+        return self.title
+
+    class Meta:
+        db_table = 'task_manager_subtask'
+        ordering = ['-created_at']
+        verbose_name = 'Subtask'
+        constraints = [
+            models.UniqueConstraint(fields=['title'], name='unique_subtask_task'),
+        ]
 
 
 class Category(models.Model):
@@ -54,3 +67,10 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        db_table = 'task_manager_category'
+        verbose_name = 'Category'
+        constraints = [
+            models.UniqueConstraint(fields=['name'], name='unique_category_name'),
+        ]
