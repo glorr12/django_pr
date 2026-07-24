@@ -1,5 +1,5 @@
 from django.db import models
-from icalendar import STATUS
+
 
 
 class Book(models.Model):
